@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Maciej T. Nowak</authors>
+    <owners>Maciej T. Nowak</owners>
+    <projectUrl>https://github.com/Novakov/SignalR.RabbitMQ</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>RabbitMQ backplane for SignalR</description>
+    <tags>SignalR RabbitMQ backplane</tags>
+  </metadata>
+</package>
