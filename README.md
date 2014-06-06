@@ -1,13 +1,13 @@
 SignalR.RabbitMQ
 ================
 
-RabbitMQ backplane for SignalR
+A RabbitMQ backplane for SignalR.
 
 
 Usage
 ----
 
-Map SignalR in following way:
+Map SignalR in the following way:
 
     app.MapSignalR(new HubConfiguration().UseRabbitMq(new RabbitMqScaleoutConfiguration()
         {
