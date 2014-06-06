@@ -9,11 +9,9 @@ Usage
 
 Map SignalR in following way:
 
-    app.MapSignalR(new HubConfiguration()
-                  .UseRabbitMq(new RabbitMqScaleoutConfiguration
-                  {
-                      QueueName = "node_name",
-                      UserName = "signalr_user",
-                      Password = "signalr_password",
-                      VirtualHost = "signalr"
-                  }));
+    app.MapSignalR(new HubConfiguration().UseRabbitMq(new RabbitMqScaleoutConfiguration()
+        {
+            RabbitMqUri = new Uri("amqp://guest:guest@localhost:5672"),
+            QueueName = "node_name",
+            ExchangeName = "RabbitMQSignalRScaleOut",
+        }));
