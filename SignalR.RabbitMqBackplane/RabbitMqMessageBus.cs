@@ -19,6 +19,7 @@ namespace SignalR.RabbitMq
         private readonly IModel model;
         private readonly string consumerTag;
         private readonly IConnection connection;
+        private readonly RabbitMqScaleoutConfiguration configuration;
 
         public RabbitMqMessageBus(IDependencyResolver resolver, RabbitMqScaleoutConfiguration configuration)
             : base(resolver, configuration)
@@ -31,25 +32,36 @@ namespace SignalR.RabbitMq
 
             model = connection.CreateModel();
 
-            var exchange = configuration.ExchangeName ?? "messages";
-
             model.QueueDeclare(configuration.QueueName, false, false, true, new Hashtable());
-            model.ExchangeDeclare(exchange, ExchangeType.Fanout);
-            model.QueueBind(configuration.QueueName, exchange, "");
+            model.ExchangeDeclare(configuration.ExchangeName, ExchangeType.Fanout);
+            model.QueueBind(configuration.QueueName, configuration.ExchangeName, "");
 
             consumerTag = model.BasicConsume(configuration.QueueName, true, new Consumer(this.OnReceived));
+
+            this.configuration = configuration;
         }
 
         private static ConnectionFactory CreateConnectionFactory(RabbitMqScaleoutConfiguration configuration)
         {
-            var connectionFactory = new ConnectionFactory
+            if (configuration.RabbitMqUri != null)
             {
-                UserName = configuration.UserName,
-                Password = configuration.Password,
-                VirtualHost = configuration.VirtualHost ?? "",
-                Protocol = new Protocol()
-            };
-            return connectionFactory;
+                return new ConnectionFactory()
+                {
+                    Uri = configuration.RabbitMqUri.ToString(),
+                };
+            }
+            else
+            {
+                return new ConnectionFactory
+                {
+                    HostName = configuration.HostName,
+                    UserName = configuration.UserName,
+                    Password = configuration.Password,
+                    VirtualHost = configuration.VirtualHost,
+                    Protocol = new Protocol(),
+                    Port = configuration.Port,
+                };
+            }
         }
 
         protected override Task Send(int streamIndex, IList<Message> messages)
@@ -67,7 +79,7 @@ namespace SignalR.RabbitMq
 
                 var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(msg));
 
-                model.BasicPublish("messages", "", true, new BasicProperties(), body);
+                model.BasicPublish(this.configuration.ExchangeName, "", true, new BasicProperties(), body);
             });
         }
 
